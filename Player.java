@@ -1,5 +1,5 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
-import javafx.geometry.Point2D;
+
 
 /**
  * Write a description of class Player here.
@@ -33,15 +33,15 @@ public class Player extends Actor {
         dx = 0;
         dy = 0;
 
-        if(getObjectB(Wall.class) != null) {
+        if(onPlatform()) {
             state = PlayerState.STAND;
-            if(Greenfoot.isKeyDown("left") && getObjectL(Wall.class) == null) {
+            if(Greenfoot.isKeyDown("left")) {
                 dx = -3;
                 dy = 0;
                 state = PlayerState.GROUND;
             }
 
-            if(Greenfoot.isKeyDown("right") && getObjectR(Wall.class) == null) {
+            if(Greenfoot.isKeyDown("right")) {
                 dx = 3;
                 dy = 0;
                 state = PlayerState.GROUND;
@@ -54,7 +54,23 @@ public class Player extends Actor {
 
         updateImage();
         if (debug) drawDebugSquare();
+        checkBoundsAABB();
         setLocation(getX() + dx, getY() + dy);
+    }
+
+    private void checkBoundsAABB() {
+        // Check to make sure that the AABB doesn't go out of bounds or encounters an object, if it does, set the dx to 0
+        if((dx > 0 && (getObjectR(Wall.class) != null || getX() > getWorld().getWidth() - GRID_SIZE / 4))
+                || (dx < 0 && (getObjectL(Wall.class) != null || getX() < GRID_SIZE / 4)))
+        {
+            dx = 0;
+        }
+
+        // TODO: Setup y-axis constraints
+    }
+
+    private boolean onPlatform() {
+        return getObjectB(Wall.class) != null || getObjectBR(Wall.class) != null || getObjectBL(Wall.class) != null;
     }
 
     private void updateImage() {
